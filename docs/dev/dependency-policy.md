@@ -2,6 +2,7 @@
 
 ## Goals
 - Keep dependencies current without destabilizing delivery.
+- Use a repeatable operational workflow for Dependabot changes: see [dependabot-playbook.md](./dependabot-playbook.md).
 
 ## Policy
 - Dependabot PRs are reviewed weekly.

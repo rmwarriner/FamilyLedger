@@ -38,6 +38,7 @@ FamilyLedger is a cross-platform household accounting desktop application scaffo
 - Decision records: [docs/adr/README.md](docs/adr/README.md)
 - Security practices: [docs/dev/security-practices.md](docs/dev/security-practices.md)
 - Dependency policy: [docs/dev/dependency-policy.md](docs/dev/dependency-policy.md)
+- Dependabot operations playbook: [docs/dev/dependabot-playbook.md](docs/dev/dependabot-playbook.md)
 - Workflow documentation: [docs/dev/github-workflows.md](docs/dev/github-workflows.md)
 
 ## Notes
