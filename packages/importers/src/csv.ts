@@ -92,7 +92,17 @@ export const CSV_IMPORTER: Importer = {
     };
   },
   detectFormat: (input: string | Buffer): boolean => {
-    const text = input.toString();
-    return /(^|\n)\s*date\s*,\s*payee\s*,\s*amount\s*(\n|$)/i.test(text);
+    const firstLine = input
+      .toString()
+      .split('\n')[0]
+      ?.trim()
+      .toLowerCase();
+
+    if (!firstLine) {
+      return false;
+    }
+
+    const columns = firstLine.split(',').map((value) => value.trim());
+    return columns.includes('date') && columns.includes('payee') && columns.includes('amount');
   }
 };

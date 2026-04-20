@@ -11,31 +11,90 @@ const decodeXmlPayload = (input: string | Buffer): string => {
   return buffer.toString('utf8');
 };
 
+const extractTagValueFrom = (source: string, tag: string, from = 0): { value: string; end: number } | null => {
+  const open = `<${tag}>`;
+  const close = `</${tag}>`;
+  const start = source.indexOf(open, from);
+  if (start < 0) {
+    return null;
+  }
+
+  const valueStart = start + open.length;
+  const valueEnd = source.indexOf(close, valueStart);
+  if (valueEnd < 0) {
+    return null;
+  }
+
+  return {
+    value: source.slice(valueStart, valueEnd).trim(),
+    end: valueEnd + close.length
+  };
+};
+
 const parseAccounts = (xml: string): RawAccount[] => {
-  const matches = Array.from(xml.matchAll(/<act:id>([^<]+)<\/act:id>[\s\S]*?<act:name>([^<]+)<\/act:name>/g));
-  if (matches.length === 0) {
+  const accounts: RawAccount[] = [];
+  let cursor = 0;
+
+  while (cursor < xml.length) {
+    const idMatch = extractTagValueFrom(xml, 'act:id', cursor);
+    if (!idMatch) {
+      break;
+    }
+
+    const nameMatch = extractTagValueFrom(xml, 'act:name', idMatch.end);
+    if (!nameMatch) {
+      break;
+    }
+
+    accounts.push({
+      importedId: idMatch.value,
+      name: nameMatch.value,
+      type: 'ASSET',
+      currency: 'USD'
+    });
+    cursor = nameMatch.end;
+  }
+
+  if (accounts.length === 0) {
     return [{ importedId: 'gnucash-xml:default', name: 'GnuCash XML Account', type: 'ASSET', currency: 'USD' }];
   }
 
-  return matches.map((match) => ({
-    importedId: match[1]!.trim(),
-    name: match[2]!.trim(),
-    type: 'ASSET',
-    currency: 'USD'
-  }));
+  return accounts;
 };
 
 const parseTransactions = (xml: string, accountImportedId: string): RawTransaction[] => {
-  const txnMatches = Array.from(xml.matchAll(/<trn:id>([^<]+)<\/trn:id>[\s\S]*?<trn:date-posted>[\s\S]*?<ts:date>([^<]+)<\/ts:date>[\s\S]*?<trn:description>([^<]*)<\/trn:description>/g));
+  const transactions: RawTransaction[] = [];
+  let cursor = 0;
 
-  return txnMatches.map((match, index) => ({
-    importedId: match[1]!.trim(),
-    date: match[2]!.trim().slice(0, 10),
-    payee: match[3]!.trim() || `GnuCash XML Txn ${index + 1}`,
-    amount: '0.00',
-    accountImportedId,
-    memo: 'Amount extraction pending split parsing'
-  }));
+  while (cursor < xml.length) {
+    const idMatch = extractTagValueFrom(xml, 'trn:id', cursor);
+    if (!idMatch) {
+      break;
+    }
+
+    const dateMatch = extractTagValueFrom(xml, 'ts:date', idMatch.end);
+    if (!dateMatch) {
+      break;
+    }
+
+    const descriptionMatch = extractTagValueFrom(xml, 'trn:description', dateMatch.end);
+    if (!descriptionMatch) {
+      break;
+    }
+
+    transactions.push({
+      importedId: idMatch.value,
+      date: dateMatch.value.slice(0, 10),
+      payee: descriptionMatch.value || `GnuCash XML Txn ${transactions.length + 1}`,
+      amount: '0.00',
+      accountImportedId,
+      memo: 'Amount extraction pending split parsing'
+    });
+
+    cursor = descriptionMatch.end;
+  }
+
+  return transactions;
 };
 
 export const GNUCASH_XML_IMPORTER: Importer = {
