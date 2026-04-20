@@ -1,0 +1,16 @@
+{
+  "name": "@familyledger/e2e",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "playwright test",
+    "check": "playwright test --list",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint tests --ext .ts"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.50.1",
+    "typescript": "^5.7.2"
+  }
+}

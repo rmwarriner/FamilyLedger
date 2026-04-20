@@ -1,0 +1,24 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "FamilyLedger",
+  "version": "0.1.0",
+  "identifier": "com.familyledger.app",
+  "build": {
+    "beforeDevCommand": "pnpm --filter @familyledger/desktop dev",
+    "beforeBuildCommand": "pnpm --filter @familyledger/desktop build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "FamilyLedger",
+        "width": 1280,
+        "height": 800
+      }
+    ]
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "id": "monthly-expense-by-category",
+  "name": "Monthly Expense by Category",
+  "query": "SELECT category, SUM(amount) AS total FROM postings WHERE type = 'EXPENSE' AND date BETWEEN :start AND :end GROUP BY category",
+  "dimensions": ["category"],
+  "metrics": ["total"]
+}

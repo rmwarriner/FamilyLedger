@@ -1,0 +1,19 @@
+:root[data-theme='dark-ink'] {
+  /* TODO(impl): define dark ink color values using existing token names for deep warm charcoal surfaces. */
+  --color-surface-base: #17130F;
+  --color-surface-raised: #1F1A15;
+  --color-surface-overlay: #28221B;
+  --color-surface-sunken: #120E0A;
+  --color-ink-primary: #F3EDE3;
+  --color-ink-secondary: #D2C5B4;
+  --color-ink-tertiary: #A8947A;
+  --color-ink-disabled: #7A6C5C;
+  --color-accent: #75A697;
+  --color-accent-hover: #5A8B7D;
+  --color-accent-subtle: #243530;
+  --color-positive: #5FA27F;
+  --color-negative: #B06B6B;
+  --color-warning: #BA9552;
+  --color-error: #B46E6E;
+  --color-error-surface: #2F1A1A;
+}

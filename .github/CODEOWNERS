@@ -1,0 +1,11 @@
+# Default ownership
+* @rmwarriner
+
+# Backend ownership
+/apps/desktop/src-tauri/ @rmwarriner
+
+# Frontend ownership
+/apps/desktop/src/ @rmwarriner
+
+# Core packages
+/packages/ @rmwarriner
