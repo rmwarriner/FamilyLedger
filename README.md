@@ -2,6 +2,12 @@
 
 FamilyLedger is a cross-platform household accounting desktop application scaffold built on Tauri v2 + React + TypeScript.
 
+## Start Here
+- Read `AGENTS.md` for repository rules and operating constraints.
+- Read `ROADMAP.md` for current phase priorities and sequencing.
+- Read `docs/dev/github-workflows.md` for required CI checks and branch protection assumptions.
+- For first-time local setup in VS Code, install recommended workspace extensions from `.vscode/extensions.json`.
+
 ## Prerequisites
 - Node.js 22+
 - pnpm 9+

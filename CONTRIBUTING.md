@@ -2,6 +2,12 @@
 
 See [AGENTS.md](AGENTS.md) for operating rules and [docs/dev/github-workflows.md](docs/dev/github-workflows.md) for CI details.
 
+## VS Code Setup
+- Open the repository root in VS Code.
+- Install workspace-recommended extensions when prompted (from `.vscode/extensions.json`).
+- If needed, run `Extensions: Show Recommended Extensions` from the Command Palette.
+- Workspace settings in `.vscode/settings.json` enforce consistent format/lint behavior for TypeScript and Rust.
+
 ## Branch and PR Workflow
 - Create a branch from `main`.
 - Use branch naming conventions:

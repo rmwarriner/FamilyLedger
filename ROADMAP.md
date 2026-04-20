@@ -37,6 +37,7 @@
 - `packages/importers`: OFX/QIF/CSV/MT940/GnuCash parse paths with fixtures and dedup rules.
 - `packages/budgets`: envelope/tracking engines, rollover/overspend policy behaviors.
 - Desktop import and budget IPC wiring to backend stubs.
+- Enable Playwright MCP at Phase 2 start to support implementation and validation loops for desktop import/budget flows.
 ### Exit Criteria
 - Importers parse fixture sets with deterministic output.
 - Budget engines produce validated summary outputs.
