@@ -18,14 +18,21 @@ FamilyLedger uses three GitHub Actions workflows:
 
 ### Steps
 - Checkout
+- Restore Turbo local cache (`.turbo`, `~/.cache/turbo`)
 - Setup pnpm and Node.js
 - Setup Rust toolchain and Rust cache
-- Install Linux system dependencies required for Tauri/WebKitGTK build scripts
+- Restore/install Linux system dependencies with apt cache action
 - `pnpm install`
 - `pnpm typecheck`
 - `pnpm test || true` (non-gating while TODO test stubs remain)
 - Create `apps/desktop/dist` placeholder for `tauri::generate_context!()`
 - Rust compile check: `cargo check`
+
+### Cache Layers
+- pnpm dependency cache (`actions/setup-node` + `cache: pnpm`)
+- Turbo local cache (`actions/cache` for `.turbo` and `~/.cache/turbo`)
+- Rust cache (`Swatinem/rust-cache`)
+- APT package cache (`awalsh128/cache-apt-pkgs-action`) for Linux Tauri system dependencies
 
 ## CodeQL Workflow
 - **Name:** `CodeQL`
