@@ -12,6 +12,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@familyledger/accounting-engine": "workspace:*"
+    "@familyledger/accounting-engine": "workspace:*",
+    "@familyledger/shared": "workspace:*"
   }
 }

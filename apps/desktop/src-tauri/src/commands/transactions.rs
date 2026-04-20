@@ -15,6 +15,8 @@ pub struct TransactionDto {
     pub credit_account_id: String,
     pub credit_account_name: String,
     pub memo: Option<String>,
+    pub is_scheduled: bool,
+    pub scheduled_id: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -46,6 +48,8 @@ pub async fn list_transactions() -> Result<Vec<TransactionDto>, String> {
             credit_account_id: transaction.credit_account_id,
             credit_account_name: transaction.credit_account_name,
             memo: transaction.memo,
+            is_scheduled: transaction.is_scheduled,
+            scheduled_id: transaction.scheduled_id,
         })
         .collect::<Vec<_>>();
     debug!(command = "list_transactions", count = response.len(), "IPC command exit");
@@ -64,6 +68,7 @@ pub async fn create_transaction(request: CreateTransactionRequest) -> Result<Tra
             debit_account_id: request.debit_account_id,
             credit_account_id: request.credit_account_id,
             memo: request.memo,
+            scheduled_id: None,
         },
     )?;
 
@@ -79,6 +84,8 @@ pub async fn create_transaction(request: CreateTransactionRequest) -> Result<Tra
         credit_account_id: record.credit_account_id,
         credit_account_name: record.credit_account_name,
         memo: record.memo,
+        is_scheduled: record.is_scheduled,
+        scheduled_id: record.scheduled_id,
     })
 }
 
@@ -90,13 +97,14 @@ mod tests {
 
         let created = crate::commands::ledger_store::create_transaction(
             crate::commands::ledger_store::CreateTransactionInput {
-            date: "2026-04-20".to_string(),
-            description: "Coffee".to_string(),
-            payee: Some("Cafe".to_string()),
-            amount: "12.40".to_string(),
-            debit_account_id: "acct-groceries".to_string(),
-            credit_account_id: "acct-checking".to_string(),
-            memo: Some("Morning".to_string()),
+                date: "2026-04-20".to_string(),
+                description: "Coffee".to_string(),
+                payee: Some("Cafe".to_string()),
+                amount: "12.40".to_string(),
+                debit_account_id: "acct-groceries".to_string(),
+                credit_account_id: "acct-checking".to_string(),
+                memo: Some("Morning".to_string()),
+                scheduled_id: None,
             },
         )
         .expect("create transaction");
@@ -115,13 +123,14 @@ mod tests {
 
         let result = crate::commands::ledger_store::create_transaction(
             crate::commands::ledger_store::CreateTransactionInput {
-            date: "2026-04-20".to_string(),
-            description: "Invalid".to_string(),
-            payee: None,
-            amount: "-1".to_string(),
-            debit_account_id: "acct-groceries".to_string(),
-            credit_account_id: "acct-checking".to_string(),
-            memo: None,
+                date: "2026-04-20".to_string(),
+                description: "Invalid".to_string(),
+                payee: None,
+                amount: "-1".to_string(),
+                debit_account_id: "acct-groceries".to_string(),
+                credit_account_id: "acct-checking".to_string(),
+                memo: None,
+                scheduled_id: None,
             },
         );
 

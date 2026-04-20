@@ -4,6 +4,7 @@ pub mod budgets;
 pub mod imports;
 pub mod ledger_store;
 pub mod reports;
+pub mod scheduled;
 pub mod sync;
 pub mod transactions;
 pub mod vault;
