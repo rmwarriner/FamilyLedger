@@ -25,7 +25,7 @@
     "@tanstack/react-router": "^1.79.1",
     "@tauri-apps/api": "^2.2.0",
     "cmdk": "^1.0.4",
-    "pino": "^9.5.0",
+    "pino": "^10.3.1",
     "react": "^18.3.1",
     "react-dom": "^19.2.5",
     "zustand": "^5.0.2"
