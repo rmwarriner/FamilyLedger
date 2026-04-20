@@ -25,6 +25,10 @@ FamilyLedger is a cross-platform household accounting desktop application scaffo
 - `docs/architecture`: Architecture, security, sync, and audit documents
 - `e2e`: Playwright E2E scaffold
 
+## Governance and CI
+- Agent and contributor operating rules: [AGENTS.md](AGENTS.md)
+- Workflow documentation: [docs/dev/github-workflows.md](docs/dev/github-workflows.md)
+
 ## Notes
 - Scaffold intentionally contains failing TDD test stubs for unimplemented behavior.
 - Unimplemented paths are marked with `TODO(impl):` comments.
