@@ -12,13 +12,11 @@ This file defines repository-level operating rules for humans and AI agents cont
 
 ## CI Expectations
 The following workflows must stay green on pull requests to `main`:
-- `build-test (ubuntu-latest)`
-- `build-test (macos-latest)`
-- `build-test (windows-latest)`
+- `build-test`
 - `Analyze (javascript-typescript)`
 
 Notes:
-- `CI` runs typechecking, tests, and Rust compile checks.
+- `CI` runs on Ubuntu and includes Node typechecking/tests plus Rust/Tauri compile checks.
 - Current scaffold intentionally contains failing TODO test stubs; CI is configured to keep test failures non-gating until TODO implementation phase.
 - `CodeQL` runs on PRs to `main`, pushes to `main`, and on weekly schedule.
 

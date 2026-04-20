@@ -10,20 +10,21 @@ FamilyLedger uses three GitHub Actions workflows:
 ## CI Workflow
 - **Name:** `CI`
 - **Triggers:** `push` to `main`, `pull_request`
-- **Matrix:** `ubuntu-latest`, `macos-latest`, `windows-latest`
+- **Runner:** `ubuntu-latest`
 - **Job name:** `build-test`
 - **Concurrency:** one active run per ref/workflow (`cancel-in-progress: true`)
 - **Checks produced:**
-  - `build-test (ubuntu-latest)`
-  - `build-test (macos-latest)`
-  - `build-test (windows-latest)`
+  - `build-test`
 
 ### Steps
 - Checkout
 - Setup pnpm and Node.js
+- Setup Rust toolchain and Rust cache
+- Install Linux system dependencies required for Tauri/WebKitGTK build scripts
 - `pnpm install`
 - `pnpm typecheck`
 - `pnpm test || true` (non-gating while TODO test stubs remain)
+- Create `apps/desktop/dist` placeholder for `tauri::generate_context!()`
 - Rust compile check: `cargo check`
 
 ## CodeQL Workflow
@@ -48,9 +49,7 @@ Branch protection enforces:
 - Admin enforcement
 - No force pushes/deletions
 - Required status checks:
-  - `build-test (ubuntu-latest)`
-  - `build-test (macos-latest)`
-  - `build-test (windows-latest)`
+  - `build-test`
   - `Analyze (javascript-typescript)`
 
 If a job/check name changes, update branch protection required status checks in GitHub settings (or API) immediately.
