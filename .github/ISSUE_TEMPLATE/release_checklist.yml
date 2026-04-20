@@ -1,0 +1,28 @@
+name: Release checklist
+description: Track release readiness and go/no-go checks
+labels: [chore]
+body:
+  - type: input
+    id: target
+    attributes:
+      label: Target version
+      placeholder: v0.2.0
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Release scope
+    validations:
+      required: true
+  - type: textarea
+    id: checklist
+    attributes:
+      label: Release checklist
+      placeholder: |
+        - [ ] Required checks green
+        - [ ] Changelog updated
+        - [ ] Security advisories reviewed
+        - [ ] Rollback notes documented
+    validations:
+      required: true

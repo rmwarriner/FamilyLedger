@@ -27,7 +27,11 @@ FamilyLedger is a cross-platform household accounting desktop application scaffo
 
 ## Governance and CI
 - Agent and contributor operating rules: [AGENTS.md](AGENTS.md)
+- Contribution guide: [CONTRIBUTING.md](CONTRIBUTING.md)
 - Delivery plan and phases: [ROADMAP.md](ROADMAP.md)
+- Decision records: [docs/adr/README.md](docs/adr/README.md)
+- Security practices: [docs/dev/security-practices.md](docs/dev/security-practices.md)
+- Dependency policy: [docs/dev/dependency-policy.md](docs/dev/dependency-policy.md)
 - Workflow documentation: [docs/dev/github-workflows.md](docs/dev/github-workflows.md)
 
 ## Notes
