@@ -4,17 +4,48 @@ updates:
     directory: "/"
     schedule:
       interval: weekly
-    open-pull-requests-limit: 10
+      day: monday
+      time: "04:00"
+      timezone: "America/Chicago"
+    open-pull-requests-limit: 5
     labels: [dependencies]
+    rebase-strategy: auto
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      npm-dev-minor-patch:
+        dependency-type: development
+        update-types:
+          - patch
+          - minor
+      npm-prod-minor-patch:
+        dependency-type: production
+        update-types:
+          - patch
+          - minor
 
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
       interval: weekly
-    labels: [dependencies, ci]
+      day: monday
+      time: "04:15"
+      timezone: "America/Chicago"
+    open-pull-requests-limit: 3
+    labels: [dependencies]
+    rebase-strategy: auto
+    commit-message:
+      prefix: "chore(deps)"
 
   - package-ecosystem: cargo
     directory: "/apps/desktop/src-tauri"
     schedule:
       interval: weekly
-    labels: [dependencies, rust]
+      day: monday
+      time: "04:30"
+      timezone: "America/Chicago"
+    open-pull-requests-limit: 3
+    labels: [dependencies]
+    rebase-strategy: auto
+    commit-message:
+      prefix: "chore(deps)"
