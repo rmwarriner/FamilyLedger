@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { getTableColumns } from 'drizzle-orm';
-import { accounts, auditLog, journalEntries, postings } from '../index';
+import { accounts, auditLog, createAuditLogInsert, journalEntries, postings } from '../index';
 
 describe('schema definitions', () => {
   it('validates required table and column definitions', () => {
@@ -41,5 +41,33 @@ describe('schema definitions', () => {
     expect(cols.createdAt.notNull).toBe(true);
     expect(cols.updatedAt.notNull).toBe(true);
     expect(Object.keys(cols)).not.toContain('deletedAt');
+  });
+
+  it('builds audit-log insert payloads through insert-only helper', () => {
+    const payload = createAuditLogInsert({
+      id: 'evt_1',
+      occurredAt: '2026-04-20T14:00:00.000Z',
+      userId: 'user_1',
+      operation: 'INSERT',
+      tableName: 'postings',
+      recordId: 'posting_1',
+      thisHash: 'abc123',
+      createdAt: '2026-04-20T14:00:01.000Z'
+    });
+
+    expect(payload).toEqual({
+      id: 'evt_1',
+      occurredAt: '2026-04-20T14:00:00.000Z',
+      userId: 'user_1',
+      operation: 'INSERT',
+      tableName: 'postings',
+      recordId: 'posting_1',
+      beforeJson: null,
+      afterJson: null,
+      prevHash: null,
+      thisHash: 'abc123',
+      createdAt: '2026-04-20T14:00:01.000Z',
+      updatedAt: '2026-04-20T14:00:01.000Z'
+    });
   });
 });

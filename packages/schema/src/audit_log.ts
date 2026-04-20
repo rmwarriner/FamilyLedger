@@ -15,4 +15,37 @@ export const auditLog = sqliteTable('audit_log', {
   ...withTimestamps
 });
 
-// TODO(impl): expose insert-only helpers; do not expose update/delete operations.
+export interface AuditLogInsertInput {
+  id: string;
+  occurredAt: string;
+  userId: string;
+  operation: string;
+  tableName: string;
+  recordId: string;
+  beforeJson?: string | null;
+  afterJson?: string | null;
+  prevHash?: string | null;
+  thisHash: string;
+  createdAt?: string;
+}
+
+export type AuditLogInsert = typeof auditLog.$inferInsert;
+
+export const createAuditLogInsert = (input: AuditLogInsertInput): AuditLogInsert => {
+  const createdAt = input.createdAt ?? new Date().toISOString();
+
+  return {
+    id: input.id,
+    occurredAt: input.occurredAt,
+    userId: input.userId,
+    operation: input.operation,
+    tableName: input.tableName,
+    recordId: input.recordId,
+    beforeJson: input.beforeJson ?? null,
+    afterJson: input.afterJson ?? null,
+    prevHash: input.prevHash ?? null,
+    thisHash: input.thisHash,
+    createdAt,
+    updatedAt: createdAt
+  };
+};
