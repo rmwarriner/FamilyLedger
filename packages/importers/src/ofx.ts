@@ -1,4 +1,5 @@
 import type { ImportResult, Importer, RawAccount, RawTransaction } from './types';
+import { finalizeImportResult } from './normalize';
 
 const extractTagValue = (source: string, tag: string): string | null => {
   const upperSource = source.toUpperCase();
@@ -84,12 +85,12 @@ export const OFX_IMPORTER: Importer = {
       currency: extractTagValue(text, 'CURDEF') ?? 'USD'
     }];
 
-    return {
+    return finalizeImportResult({
       accounts,
       transactions: extractTransactions(text, accountId),
       errors: [],
       warnings: []
-    };
+    }, 'ofx');
   },
   detectFormat: (input: string | Buffer): boolean => {
     const text = input.toString();

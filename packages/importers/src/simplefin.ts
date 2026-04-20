@@ -1,4 +1,5 @@
 import type { ImportResult, Importer, RawAccount, RawTransaction } from './types';
+import { finalizeImportResult } from './normalize';
 
 const safeParseJson = <T>(input: string): T | null => {
   try {
@@ -81,20 +82,20 @@ export const SIMPLEFIN_IMPORTER: Importer = {
     const payload = safeParseJson<SimplefinPayload>(text);
 
     if (!payload) {
-      return {
+      return finalizeImportResult({
         accounts: [],
         transactions: [],
         errors: [{ code: 'SIMPLEFIN_INVALID_JSON', message: 'SimpleFIN payload must be valid JSON.' }],
         warnings: []
-      };
+      }, 'simplefin');
     }
 
-    return {
+    return finalizeImportResult({
       accounts: payload.accounts ?? [],
       transactions: payload.transactions ?? [],
       errors: [],
       warnings: []
-    };
+    }, 'simplefin');
   },
   detectFormat: (input: string | Buffer): boolean => {
     const text = input.toString().trim();

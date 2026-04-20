@@ -6,3 +6,4 @@ export * from './mt940';
 export * from './gnucash-xml';
 export * from './gnucash-sqlite';
 export * from './simplefin';
+export * from './normalize';

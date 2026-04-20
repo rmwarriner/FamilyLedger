@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import Database from 'better-sqlite3';
 import type { ImportResult, Importer, RawAccount, RawTransaction } from './types';
+import { finalizeImportResult } from './normalize';
 
 const SQLITE_HEADER = 'SQLite format 3\u0000';
 
@@ -47,12 +48,12 @@ const parseFromPath = (path: string): ImportResult => {
         memo: 'Amount extraction pending split aggregation'
       } satisfies RawTransaction));
 
-    return {
+    return finalizeImportResult({
       accounts,
       transactions,
       errors: [],
       warnings: []
-    };
+    }, 'gnucash-sqlite');
   } finally {
     db.close();
   }
@@ -66,7 +67,7 @@ export const GNUCASH_SQLITE_IMPORTER: Importer = {
       return parseFromPath(input);
     }
 
-    return {
+    return finalizeImportResult({
       accounts: [],
       transactions: [],
       errors: [],
@@ -74,7 +75,7 @@ export const GNUCASH_SQLITE_IMPORTER: Importer = {
         code: 'GNUCASH_SQLITE_BUFFER_UNSUPPORTED',
         message: 'SQLite importer requires a file path input for read-only parsing.'
       }]
-    };
+    }, 'gnucash-sqlite');
   },
   detectFormat: (input: string | Buffer): boolean => {
     if (Buffer.isBuffer(input)) {

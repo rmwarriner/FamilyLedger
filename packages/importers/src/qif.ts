@@ -1,4 +1,5 @@
 import type { ImportResult, Importer, RawAccount, RawTransaction } from './types';
+import { finalizeImportResult } from './normalize';
 
 const defaultAccount: RawAccount = {
   importedId: 'qif:default-account',
@@ -69,12 +70,12 @@ export const QIF_IMPORTER: Importer = {
 
     flush();
 
-    return {
+    return finalizeImportResult({
       accounts: [defaultAccount],
       transactions,
       errors: [],
       warnings: []
-    };
+    }, 'qif');
   },
   detectFormat: (input: string | Buffer): boolean => {
     const text = input.toString();
