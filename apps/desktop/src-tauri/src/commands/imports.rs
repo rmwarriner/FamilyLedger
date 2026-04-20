@@ -60,10 +60,15 @@ fn estimate_counts(format: &str, payload: &str) -> (usize, usize, Vec<String>) {
 #[tauri::command]
 pub async fn import_data(payload: String) -> Result<ImportResponse, String> {
     let request = ImportRequest { payload };
-    debug!(command = "import_data", payload_size = request.payload.len(), "IPC command entry");
+    debug!(
+        command = "import_data",
+        payload_size = request.payload.len(),
+        "IPC command entry"
+    );
 
     let format = detect_format(&request.payload);
-    let (accounts_imported, transactions_imported, errors) = estimate_counts(format, &request.payload);
+    let (accounts_imported, transactions_imported, errors) =
+        estimate_counts(format, &request.payload);
 
     info!(
         operation = "import",
@@ -99,7 +104,8 @@ mod tests {
     #[test]
     fn unknown_format_returns_error() {
         let format = detect_format("not-a-supported-format");
-        let (accounts_imported, transactions_imported, errors) = estimate_counts(format, "not-a-supported-format");
+        let (accounts_imported, transactions_imported, errors) =
+            estimate_counts(format, "not-a-supported-format");
 
         assert_eq!(accounts_imported, 0);
         assert_eq!(transactions_imported, 0);

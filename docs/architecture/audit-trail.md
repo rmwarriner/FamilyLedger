@@ -11,5 +11,6 @@ Each event includes:
 - `prev_hash` and `this_hash` SHA-256 values
 
 Integrity checks traverse hash links and fail fast on mismatch.
-
-TODO(impl): expose paginated audit log query API and integrity verification IPC command.
+- IPC commands:
+  - `verify_audit_integrity`: verifies the persisted hash chain and returns first invalid event id when broken.
+  - `query_audit_log`: supports paginated event queries with optional table/operation filters.

@@ -24,7 +24,11 @@ pub async fn list_accounts() -> Result<Vec<AccountDto>, String> {
             account_type: account.account_type,
         })
         .collect::<Vec<_>>();
-    debug!(command = "list_accounts", count = response.len(), "IPC command exit");
+    debug!(
+        command = "list_accounts",
+        count = response.len(),
+        "IPC command exit"
+    );
     Ok(response)
 }
 

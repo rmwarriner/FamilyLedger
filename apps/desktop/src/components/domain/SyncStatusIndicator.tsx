@@ -8,10 +8,11 @@ const labels: Record<string, string> = {
 };
 
 export const SyncStatusIndicator = (): JSX.Element => {
-  const { status, lastSyncAt } = useSyncStore();
+  const { status, adapter, bytesTransferred, lastSyncAt } = useSyncStore();
   return (
     <span>
-      {labels[status]} {lastSyncAt ? `(${lastSyncAt.toLocaleString()})` : ''}
+      {labels[status]} [{adapter}] {bytesTransferred > 0 ? `${bytesTransferred} bytes ` : ''}
+      {lastSyncAt ? `(${lastSyncAt.toLocaleString()})` : ''}
     </span>
   );
 };

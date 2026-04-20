@@ -13,7 +13,8 @@ pub fn run_migrations(connection: &mut Connection) -> rusqlite::Result<()> {
         ",
     )?;
 
-    let migrations: [(&str, fn() -> &'static str); 1] = [("001_initial_schema", initial_schema::migration_sql)];
+    let migrations: [(&str, fn() -> &'static str); 1] =
+        [("001_initial_schema", initial_schema::migration_sql)];
 
     for (version, migration_sql) in migrations {
         let already_applied: Option<String> = connection
@@ -25,7 +26,10 @@ pub fn run_migrations(connection: &mut Connection) -> rusqlite::Result<()> {
             .optional()?;
 
         if already_applied.is_some() {
-            debug!(module = "db.migrations", version, "migration already applied");
+            debug!(
+                module = "db.migrations",
+                version, "migration already applied"
+            );
             continue;
         }
 
@@ -33,7 +37,7 @@ pub fn run_migrations(connection: &mut Connection) -> rusqlite::Result<()> {
         let tx = connection.transaction()?;
         tx.execute_batch(migration_sql())?;
         tx.execute(
-            "INSERT INTO schema_migrations (version, applied_at) VALUES (?1, CURRENT_TIMESTAMP)",
+            "INSERT OR IGNORE INTO schema_migrations (version, applied_at) VALUES (?1, CURRENT_TIMESTAMP)",
             [version],
         )?;
         tx.commit()?;
@@ -53,11 +57,10 @@ mod tests {
         run_migrations(&mut connection)?;
         run_migrations(&mut connection)?;
 
-        let migration_count: i64 = connection.query_row(
-            "SELECT COUNT(*) FROM schema_migrations",
-            [],
-            |row| row.get(0),
-        )?;
+        let migration_count: i64 =
+            connection.query_row("SELECT COUNT(*) FROM schema_migrations", [], |row| {
+                row.get(0)
+            })?;
         assert_eq!(migration_count, 1);
 
         let accounts_table: String = connection.query_row(
@@ -84,7 +87,12 @@ mod tests {
 
         connection.execute(
             "INSERT INTO users (id, name, created_at, updated_at) VALUES (?1, ?2, ?3, ?4)",
-            ["user_1", "Test User", "2026-01-01T00:00:00Z", "2026-01-01T00:00:00Z"],
+            [
+                "user_1",
+                "Test User",
+                "2026-01-01T00:00:00Z",
+                "2026-01-01T00:00:00Z",
+            ],
         )?;
         connection.execute(
             "INSERT INTO audit_log (
@@ -113,10 +121,7 @@ mod tests {
         );
         assert!(update_result.is_err());
 
-        let delete_result = connection.execute(
-            "DELETE FROM audit_log WHERE id = 'evt_1'",
-            [],
-        );
+        let delete_result = connection.execute("DELETE FROM audit_log WHERE id = 'evt_1'", []);
         assert!(delete_result.is_err());
 
         Ok(())
