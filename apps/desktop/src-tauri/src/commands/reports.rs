@@ -55,12 +55,30 @@ fn report_for_id(id: &str) -> ReportResponse {
                 title: "Account Register".to_string(),
                 subtitle: "Transaction postings by date".to_string(),
                 columns: vec![
-                    ReportColumnDto { id: "date".to_string(), label: "Date".to_string() },
-                    ReportColumnDto { id: "description".to_string(), label: "Description".to_string() },
-                    ReportColumnDto { id: "payee".to_string(), label: "Payee".to_string() },
-                    ReportColumnDto { id: "debitAccount".to_string(), label: "Debit".to_string() },
-                    ReportColumnDto { id: "creditAccount".to_string(), label: "Credit".to_string() },
-                    ReportColumnDto { id: "amount".to_string(), label: "Amount".to_string() },
+                    ReportColumnDto {
+                        id: "date".to_string(),
+                        label: "Date".to_string(),
+                    },
+                    ReportColumnDto {
+                        id: "description".to_string(),
+                        label: "Description".to_string(),
+                    },
+                    ReportColumnDto {
+                        id: "payee".to_string(),
+                        label: "Payee".to_string(),
+                    },
+                    ReportColumnDto {
+                        id: "debitAccount".to_string(),
+                        label: "Debit".to_string(),
+                    },
+                    ReportColumnDto {
+                        id: "creditAccount".to_string(),
+                        label: "Credit".to_string(),
+                    },
+                    ReportColumnDto {
+                        id: "amount".to_string(),
+                        label: "Amount".to_string(),
+                    },
                 ],
                 rows,
                 totals: None,
@@ -92,8 +110,14 @@ fn report_for_id(id: &str) -> ReportResponse {
                 title: "Spending by Category".to_string(),
                 subtitle: "Totals by debit category".to_string(),
                 columns: vec![
-                    ReportColumnDto { id: "category".to_string(), label: "Category".to_string() },
-                    ReportColumnDto { id: "amount".to_string(), label: "Amount".to_string() },
+                    ReportColumnDto {
+                        id: "category".to_string(),
+                        label: "Category".to_string(),
+                    },
+                    ReportColumnDto {
+                        id: "amount".to_string(),
+                        label: "Amount".to_string(),
+                    },
                 ],
                 rows,
                 totals: Some(ReportRowDto {
@@ -119,7 +143,11 @@ fn report_for_id(id: &str) -> ReportResponse {
 #[tauri::command]
 pub async fn run_report(id: String) -> Result<ReportResponse, String> {
     let request = ReportRequest { id };
-    debug!(command = "run_report", report_id = request.id.as_str(), "IPC command entry");
+    debug!(
+        command = "run_report",
+        report_id = request.id.as_str(),
+        "IPC command entry"
+    );
     let response = report_for_id(request.id.as_str());
     debug!(command = "run_report", "IPC command exit");
     Ok(response)
@@ -131,20 +159,23 @@ mod tests {
 
     #[test]
     fn returns_rows_for_account_register() {
-      crate::commands::ledger_store::reset_for_tests();
-      crate::commands::ledger_store::create_transaction(crate::commands::ledger_store::CreateTransactionInput {
-        date: "2026-04-20".to_string(),
-        description: "Lunch".to_string(),
-        payee: Some("Cafe".to_string()),
-        amount: "18.75".to_string(),
-        debit_account_id: "acct-groceries".to_string(),
-        credit_account_id: "acct-checking".to_string(),
-        memo: None,
-        scheduled_id: None,
-      }).expect("seed tx");
+        crate::commands::ledger_store::reset_for_tests();
+        crate::commands::ledger_store::create_transaction(
+            crate::commands::ledger_store::CreateTransactionInput {
+                date: "2026-04-20".to_string(),
+                description: "Lunch".to_string(),
+                payee: Some("Cafe".to_string()),
+                amount: "18.75".to_string(),
+                debit_account_id: "acct-groceries".to_string(),
+                credit_account_id: "acct-checking".to_string(),
+                memo: None,
+                scheduled_id: None,
+            },
+        )
+        .expect("seed tx");
 
-      let report = report_for_id("account-register");
-      assert_eq!(report.title, "Account Register");
-      assert!(!report.rows.is_empty());
+        let report = report_for_id("account-register");
+        assert_eq!(report.title, "Account Register");
+        assert!(!report.rows.is_empty());
     }
 }

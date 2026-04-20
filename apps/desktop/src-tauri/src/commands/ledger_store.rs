@@ -132,16 +132,12 @@ fn shared_store() -> &'static Mutex<LedgerStore> {
 }
 
 pub fn list_accounts() -> Vec<AccountRecord> {
-    let store = shared_store()
-        .lock()
-        .expect("ledger store lock");
+    let store = shared_store().lock().expect("ledger store lock");
     store.accounts.clone()
 }
 
 pub fn list_transactions() -> Vec<TransactionRecord> {
-    let store = shared_store()
-        .lock()
-        .expect("ledger store lock");
+    let store = shared_store().lock().expect("ledger store lock");
 
     let mut transactions = store.transactions.clone();
     transactions.reverse();
@@ -224,7 +220,9 @@ pub fn list_scheduled() -> Vec<ScheduledRecord> {
 
 pub fn post_scheduled(id: &str) -> Result<String, String> {
     let scheduled = {
-        let store = shared_store().lock().map_err(|_| "TRANSACTION_STORE_LOCK_FAILED".to_string())?;
+        let store = shared_store()
+            .lock()
+            .map_err(|_| "TRANSACTION_STORE_LOCK_FAILED".to_string())?;
         store
             .scheduled
             .iter()
@@ -249,8 +247,6 @@ pub fn post_scheduled(id: &str) -> Result<String, String> {
 
 #[cfg(test)]
 pub fn reset_for_tests() {
-    let mut store = shared_store()
-        .lock()
-        .expect("ledger store lock");
+    let mut store = shared_store().lock().expect("ledger store lock");
     *store = LedgerStore::with_seed_data();
 }

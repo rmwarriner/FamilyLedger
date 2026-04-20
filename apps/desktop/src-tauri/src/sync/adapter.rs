@@ -8,4 +8,5 @@ pub trait SyncAdapter {
 pub struct SyncStatus {
     pub state: String,
     pub bytes_transferred: usize,
+    pub last_sync_at: Option<String>,
 }

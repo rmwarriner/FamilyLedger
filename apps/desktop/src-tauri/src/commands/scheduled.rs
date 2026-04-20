@@ -28,8 +28,8 @@ pub async fn list_scheduled_transactions() -> Result<Vec<ScheduledTransactionDto
     let response = crate::commands::ledger_store::list_scheduled()
         .into_iter()
         .map(|item| {
-            let due = chrono::NaiveDate::parse_from_str(item.due_at.as_str(), "%Y-%m-%d")
-                .unwrap_or(now);
+            let due =
+                chrono::NaiveDate::parse_from_str(item.due_at.as_str(), "%Y-%m-%d").unwrap_or(now);
             ScheduledTransactionDto {
                 id: item.id,
                 due_at: item.due_at,
@@ -48,7 +48,11 @@ pub async fn list_scheduled_transactions() -> Result<Vec<ScheduledTransactionDto
 
 #[tauri::command]
 pub async fn post_scheduled_transaction(request: PostScheduledRequest) -> Result<String, String> {
-    debug!(command = "post_scheduled_transaction", id = request.id.as_str(), "IPC command entry");
+    debug!(
+        command = "post_scheduled_transaction",
+        id = request.id.as_str(),
+        "IPC command entry"
+    );
     crate::commands::ledger_store::post_scheduled(request.id.as_str())
 }
 
@@ -66,6 +70,8 @@ mod tests {
 
         let txs = crate::commands::ledger_store::list_transactions();
         assert!(!txs.is_empty());
-        assert!(txs.iter().any(|tx| tx.scheduled_id.as_deref() == Some(id.as_str())));
+        assert!(txs
+            .iter()
+            .any(|tx| tx.scheduled_id.as_deref() == Some(id.as_str())));
     }
 }

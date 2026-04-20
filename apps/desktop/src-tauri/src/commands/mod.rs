@@ -1,8 +1,10 @@
 pub mod accounts;
 pub mod ai;
+pub mod audit;
 pub mod budgets;
 pub mod imports;
 pub mod ledger_store;
+pub mod pairing;
 pub mod reports;
 pub mod scheduled;
 pub mod sync;

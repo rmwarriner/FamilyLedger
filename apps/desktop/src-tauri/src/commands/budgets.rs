@@ -83,7 +83,8 @@ fn build_budget_summary_payload() -> Vec<BudgetSummaryDto> {
 
     for envelope in envelopes {
         let variance = envelope.allocated - envelope.spent;
-        let borrow_carryover = if envelope.overspend_policy == "BORROW_NEXT_MONTH" && variance < 0.0 {
+        let borrow_carryover = if envelope.overspend_policy == "BORROW_NEXT_MONTH" && variance < 0.0
+        {
             Some(format_amount(variance.abs()))
         } else {
             None
@@ -126,7 +127,11 @@ fn build_budget_summary_payload() -> Vec<BudgetSummaryDto> {
 pub async fn list_budgets() -> Result<Vec<BudgetSummaryDto>, String> {
     debug!(command = "list_budgets", "IPC command entry");
     let response = build_budget_summary_payload();
-    debug!(command = "list_budgets", count = response.len(), "IPC command exit");
+    debug!(
+        command = "list_budgets",
+        count = response.len(),
+        "IPC command exit"
+    );
     Ok(response)
 }
 
@@ -153,7 +158,10 @@ mod tests {
 
         assert_eq!(groceries.variance, "-42.50");
         assert_eq!(groceries.borrow_carryover.as_deref(), Some("42.50"));
-        assert_eq!(groceries.overspend_policy.as_deref(), Some("BORROW_NEXT_MONTH"));
+        assert_eq!(
+            groceries.overspend_policy.as_deref(),
+            Some("BORROW_NEXT_MONTH")
+        );
         assert_eq!(groceries.rollover_enabled, Some(true));
     }
 }

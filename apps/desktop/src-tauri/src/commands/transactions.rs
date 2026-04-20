@@ -52,12 +52,18 @@ pub async fn list_transactions() -> Result<Vec<TransactionDto>, String> {
             scheduled_id: transaction.scheduled_id,
         })
         .collect::<Vec<_>>();
-    debug!(command = "list_transactions", count = response.len(), "IPC command exit");
+    debug!(
+        command = "list_transactions",
+        count = response.len(),
+        "IPC command exit"
+    );
     Ok(response)
 }
 
 #[tauri::command]
-pub async fn create_transaction(request: CreateTransactionRequest) -> Result<TransactionDto, String> {
+pub async fn create_transaction(
+    request: CreateTransactionRequest,
+) -> Result<TransactionDto, String> {
     debug!(command = "create_transaction", "IPC command entry");
     let record = crate::commands::ledger_store::create_transaction(
         crate::commands::ledger_store::CreateTransactionInput {
@@ -134,6 +140,9 @@ mod tests {
             },
         );
 
-        assert_eq!(result.expect_err("expected error"), "TRANSACTION_INVALID_AMOUNT");
+        assert_eq!(
+            result.expect_err("expected error"),
+            "TRANSACTION_INVALID_AMOUNT"
+        );
     }
 }
