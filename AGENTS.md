@@ -9,6 +9,8 @@ This file defines repository-level operating rules for humans and AI agents cont
 - Keep commits focused and auditable.
 - Preserve `TODO(impl):` markers unless implementing the behavior.
 - Never commit secrets, credentials, or real financial PII.
+- Every implementation issue should be assigned to a roadmap phase milestone.
+- Add or refine forward-looking issues during weekly roadmap review.
 
 ## CI Expectations
 The following workflows must stay green on pull requests to `main`:
