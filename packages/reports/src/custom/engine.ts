@@ -3,17 +3,39 @@ import type { ReportOutput } from '../types';
 import type { CustomReportDefinition } from './types';
 
 export const evaluateCustomReport = (
-  _definition: CustomReportDefinition,
-  _ledger: LedgerState
+  definition: CustomReportDefinition,
+  ledger: LedgerState
 ): ReportOutput => {
-  // TODO(impl): evaluate custom report definition against LedgerState.
+  const rows = ledger.entries.map((entry, index) => ({
+    id: `${definition.id}:${index + 1}`,
+    values: {
+      date: entry.date.toISOString().slice(0, 10),
+      description: entry.description,
+      postings: entry.postings.length,
+      tags: entry.tags.join(',')
+    }
+  }));
+
   return {
-    title: 'Custom Report',
-    subtitle: 'TODO',
-    columns: [],
-    rows: [],
-    totals: null,
+    title: definition.name,
+    subtitle: `Custom query: ${definition.query}`,
+    columns: [
+      { id: 'date', label: 'Date' },
+      { id: 'description', label: 'Description' },
+      { id: 'postings', label: 'Postings' },
+      { id: 'tags', label: 'Tags' }
+    ],
+    rows,
+    totals: {
+      id: 'totals',
+      values: {
+        date: 'Total',
+        description: '',
+        postings: rows.reduce((sum, row) => sum + Number(row.values.postings), 0),
+        tags: ''
+      }
+    },
     generatedAt: new Date(),
-    parameters: {}
+    parameters: { query: definition.query }
   };
 };

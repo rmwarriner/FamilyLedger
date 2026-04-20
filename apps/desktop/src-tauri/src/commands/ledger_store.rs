@@ -24,6 +24,8 @@ pub struct TransactionRecord {
     pub credit_account_id: String,
     pub credit_account_name: String,
     pub memo: Option<String>,
+    pub is_scheduled: bool,
+    pub scheduled_id: Option<String>,
 }
 
 #[derive(Debug)]
@@ -35,12 +37,26 @@ pub struct CreateTransactionInput {
     pub debit_account_id: String,
     pub credit_account_id: String,
     pub memo: Option<String>,
+    pub scheduled_id: Option<String>,
+}
+
+#[derive(Clone, Debug)]
+pub struct ScheduledRecord {
+    pub id: String,
+    pub due_at: String,
+    pub auto_post: bool,
+    pub description: String,
+    pub amount: String,
+    pub debit_account_id: String,
+    pub credit_account_id: String,
+    pub memo: Option<String>,
 }
 
 #[derive(Default)]
 struct LedgerStore {
     accounts: Vec<AccountRecord>,
     transactions: Vec<TransactionRecord>,
+    scheduled: Vec<ScheduledRecord>,
 }
 
 impl LedgerStore {
@@ -75,8 +91,37 @@ impl LedgerStore {
                     currency: "USD".to_string(),
                     account_type: "INCOME".to_string(),
                 },
+                AccountRecord {
+                    id: "acct-rent".to_string(),
+                    name: "Rent".to_string(),
+                    full_path: "Expenses:Rent".to_string(),
+                    currency: "USD".to_string(),
+                    account_type: "EXPENSE".to_string(),
+                },
             ],
             transactions: Vec::new(),
+            scheduled: vec![
+                ScheduledRecord {
+                    id: "sched-rent".to_string(),
+                    due_at: "2026-04-01".to_string(),
+                    auto_post: false,
+                    description: "Monthly Rent".to_string(),
+                    amount: "1200.00".to_string(),
+                    debit_account_id: "acct-rent".to_string(),
+                    credit_account_id: "acct-checking".to_string(),
+                    memo: Some("Landlord payment".to_string()),
+                },
+                ScheduledRecord {
+                    id: "sched-grocery-topup".to_string(),
+                    due_at: "2026-04-25".to_string(),
+                    auto_post: true,
+                    description: "Weekly Grocery Budget".to_string(),
+                    amount: "85.00".to_string(),
+                    debit_account_id: "acct-groceries".to_string(),
+                    credit_account_id: "acct-checking".to_string(),
+                    memo: None,
+                },
+            ],
         }
     }
 }
@@ -164,10 +209,42 @@ pub fn create_transaction(input: CreateTransactionInput) -> Result<TransactionRe
                 Some(trimmed)
             }
         }),
+        is_scheduled: input.scheduled_id.is_some(),
+        scheduled_id: input.scheduled_id,
     };
 
     store.transactions.push(record.clone());
     Ok(record)
+}
+
+pub fn list_scheduled() -> Vec<ScheduledRecord> {
+    let store = shared_store().lock().expect("ledger store lock");
+    store.scheduled.clone()
+}
+
+pub fn post_scheduled(id: &str) -> Result<String, String> {
+    let scheduled = {
+        let store = shared_store().lock().map_err(|_| "TRANSACTION_STORE_LOCK_FAILED".to_string())?;
+        store
+            .scheduled
+            .iter()
+            .find(|item| item.id == id)
+            .cloned()
+            .ok_or_else(|| "SCHEDULED_TRANSACTION_NOT_FOUND".to_string())?
+    };
+
+    let created = create_transaction(CreateTransactionInput {
+        date: chrono::Utc::now().date_naive().to_string(),
+        description: format!("Scheduled: {}", scheduled.description),
+        payee: None,
+        amount: scheduled.amount,
+        debit_account_id: scheduled.debit_account_id,
+        credit_account_id: scheduled.credit_account_id,
+        memo: scheduled.memo,
+        scheduled_id: Some(scheduled.id),
+    })?;
+
+    Ok(created.id)
 }
 
 #[cfg(test)]
@@ -177,4 +254,3 @@ pub fn reset_for_tests() {
         .expect("ledger store lock");
     *store = LedgerStore::with_seed_data();
 }
-

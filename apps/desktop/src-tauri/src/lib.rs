@@ -26,6 +26,8 @@ pub fn run() {
             commands::accounts::list_accounts,
             commands::transactions::list_transactions,
             commands::transactions::create_transaction,
+            commands::scheduled::list_scheduled_transactions,
+            commands::scheduled::post_scheduled_transaction,
             commands::budgets::list_budgets,
             commands::reports::run_report,
             commands::imports::import_data,
