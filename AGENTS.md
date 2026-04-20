@@ -16,7 +16,7 @@ The following workflows must stay green on pull requests to `main`:
 - `Analyze (javascript-typescript)`
 
 Notes:
-- `CI` runs on Ubuntu and includes Node typechecking/tests plus Rust/Tauri compile checks.
+- `CI` runs on Ubuntu with parallel jobs (`typecheck-test`, `cargo-check`) and an umbrella required check (`build-test`).
 - Current scaffold intentionally contains failing TODO test stubs; CI is configured to keep test failures non-gating until TODO implementation phase.
 - `CodeQL` runs on PRs to `main`, pushes to `main`, and on weekly schedule.
 
