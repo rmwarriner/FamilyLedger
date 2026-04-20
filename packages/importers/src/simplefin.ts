@@ -1,4 +1,22 @@
 import type { ImportResult, Importer, RawAccount, RawTransaction } from './types';
+import { finalizeImportResult } from './normalize';
+
+const safeParseJson = <T>(input: string): T | null => {
+  try {
+    return JSON.parse(input) as T;
+  } catch {
+    return null;
+  }
+};
+
+const isHttpUrl = (value: string): boolean => {
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' || url.protocol === 'http:';
+  } catch {
+    return false;
+  }
+};
 
 export interface SimplefinClient {
   fetchAccounts(): Promise<RawAccount[]>;
@@ -12,24 +30,80 @@ export class SimplefinBridgeClient implements SimplefinClient {
     this.encryptedAccessUrl = encryptedAccessUrl;
   }
 
-  async fetchAccounts(): Promise<RawAccount[]> {
-    // TODO(impl): call SimpleFIN Bridge API /accounts endpoint using decrypted and validated access URL.
-    void this.encryptedAccessUrl;
-    return [];
+  private getBaseUrl(): string | null {
+    return isHttpUrl(this.encryptedAccessUrl) ? this.encryptedAccessUrl : null;
   }
 
-  async fetchTransactions(_startDate: string, _endDate: string): Promise<RawTransaction[]> {
-    // TODO(impl): call SimpleFIN Bridge API /transactions endpoint with date filtering.
-    return [];
+  async fetchAccounts(): Promise<RawAccount[]> {
+    const base = this.getBaseUrl();
+    if (!base) {
+      return [];
+    }
+
+    const response = await fetch(new URL('/accounts', base));
+    if (!response.ok) {
+      return [];
+    }
+
+    const payload = (await response.json()) as { accounts?: RawAccount[] };
+    return payload.accounts ?? [];
   }
+
+  async fetchTransactions(startDate: string, endDate: string): Promise<RawTransaction[]> {
+    const base = this.getBaseUrl();
+    if (!base) {
+      return [];
+    }
+
+    const url = new URL('/transactions', base);
+    url.searchParams.set('start_date', startDate);
+    url.searchParams.set('end_date', endDate);
+
+    const response = await fetch(url);
+    if (!response.ok) {
+      return [];
+    }
+
+    const payload = (await response.json()) as { transactions?: RawTransaction[] };
+    return payload.transactions ?? [];
+  }
+}
+
+interface SimplefinPayload {
+  accounts?: RawAccount[];
+  transactions?: RawTransaction[];
 }
 
 export const SIMPLEFIN_IMPORTER: Importer = {
   name: 'SimpleFIN Bridge',
-  supportedExtensions: ['simplefin://claim-url'],
-  parse: async (_input: string | Buffer): Promise<ImportResult> => {
-    // TODO(impl): decode claim URL, exchange for access URL, encrypt access URL in vault settings.
-    return { accounts: [], transactions: [], errors: [], warnings: [] };
+  supportedExtensions: ['simplefin://claim-url', '.json'],
+  parse: async (input: string | Buffer): Promise<ImportResult> => {
+    const text = input.toString();
+    const payload = safeParseJson<SimplefinPayload>(text);
+
+    if (!payload) {
+      return finalizeImportResult({
+        accounts: [],
+        transactions: [],
+        errors: [{ code: 'SIMPLEFIN_INVALID_JSON', message: 'SimpleFIN payload must be valid JSON.' }],
+        warnings: []
+      }, 'simplefin');
+    }
+
+    return finalizeImportResult({
+      accounts: payload.accounts ?? [],
+      transactions: payload.transactions ?? [],
+      errors: [],
+      warnings: []
+    }, 'simplefin');
   },
-  detectFormat: (_input: string | Buffer): boolean => true
+  detectFormat: (input: string | Buffer): boolean => {
+    const text = input.toString().trim();
+    if (text.startsWith('simplefin://')) {
+      return true;
+    }
+
+    const payload = safeParseJson<SimplefinPayload>(text);
+    return Boolean(payload && ('accounts' in payload || 'transactions' in payload));
+  }
 };
