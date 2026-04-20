@@ -25,6 +25,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             commands::accounts::list_accounts,
             commands::transactions::list_transactions,
+            commands::transactions::create_transaction,
             commands::budgets::list_budgets,
             commands::reports::run_report,
             commands::imports::import_data,

@@ -2,6 +2,7 @@ pub mod accounts;
 pub mod ai;
 pub mod budgets;
 pub mod imports;
+pub mod ledger_store;
 pub mod reports;
 pub mod sync;
 pub mod transactions;
