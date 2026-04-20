@@ -16,7 +16,7 @@ describe('mt940 importer', () => {
     expect(result.transactions).toEqual([
       {
         importedId: 'mt940:1',
-        date: '260115',
+        date: '2026-01-15',
         payee: 'Example Payee',
         amount: '-12.34',
         accountImportedId: 'mt940:default-account',

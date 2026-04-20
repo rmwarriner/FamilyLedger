@@ -22,4 +22,20 @@ describe('csv importer', () => {
       }
     ]);
   });
+
+  it('deduplicates repeated rows by fingerprint and flags incomplete rows', async () => {
+    const payload = [
+      'date,payee,amount',
+      '2026-01-15,Example Payee,-12.34',
+      '2026-01-15,Example Payee,-12.34',
+      '2026-01-16,Missing Amount,'
+    ].join('\n');
+
+    const result = await CSV_IMPORTER.parse(payload);
+    expect(result.transactions).toHaveLength(1);
+    expect(result.errors[0]?.code).toBe('CSV_ROW_INCOMPLETE');
+    expect(result.warnings.map((warning) => warning.code)).toContain(
+      'IMPORT_DUPLICATE_TRANSACTION_FINGERPRINT'
+    );
+  });
 });

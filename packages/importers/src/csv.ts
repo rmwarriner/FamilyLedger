@@ -1,4 +1,5 @@
 import type { ImportError, ImportResult, Importer, RawAccount, RawTransaction } from './types';
+import { finalizeImportResult } from './normalize';
 
 const defaultAccount: RawAccount = {
   importedId: 'csv:default-account',
@@ -84,12 +85,12 @@ export const CSV_IMPORTER: Importer = {
       }];
     });
 
-    return {
+    return finalizeImportResult({
       accounts: [defaultAccount],
       transactions,
       errors,
       warnings: []
-    };
+    }, 'csv');
   },
   detectFormat: (input: string | Buffer): boolean => {
     const firstLine = input

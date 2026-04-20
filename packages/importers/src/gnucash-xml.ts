@@ -1,5 +1,6 @@
 import { gunzipSync } from 'node:zlib';
 import type { ImportResult, Importer, RawAccount, RawTransaction } from './types';
+import { finalizeImportResult } from './normalize';
 
 const gzipHeader = Buffer.from([0x1f, 0x8b]);
 
@@ -110,12 +111,12 @@ export const GNUCASH_XML_IMPORTER: Importer = {
       ? [{ code: 'GNUCASH_XML_NO_TRANSACTIONS', message: 'No transactions found in GnuCash XML payload.' }]
       : [];
 
-    return {
+    return finalizeImportResult({
       accounts,
       transactions,
       errors: [],
       warnings
-    };
+    }, 'gnucash-xml');
   },
   detectFormat: (input: string | Buffer): boolean => {
     const buffer = Buffer.isBuffer(input) ? input : Buffer.from(input);

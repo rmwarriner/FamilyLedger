@@ -1,4 +1,5 @@
 import type { ImportResult, Importer, RawAccount, RawTransaction } from './types';
+import { finalizeImportResult } from './normalize';
 
 const defaultAccount: RawAccount = {
   importedId: 'mt940:default-account',
@@ -45,12 +46,12 @@ export const MT940_IMPORTER: Importer = {
   parse: async (input: string | Buffer): Promise<ImportResult> => {
     const text = input.toString();
 
-    return {
+    return finalizeImportResult({
       accounts: [defaultAccount],
       transactions: parseStatementLines(text),
       errors: [],
       warnings: []
-    };
+    }, 'mt940');
   },
   detectFormat: (input: string | Buffer): boolean => {
     const text = input.toString();
