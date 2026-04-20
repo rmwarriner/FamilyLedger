@@ -11,22 +11,27 @@ FamilyLedger uses three GitHub Actions workflows:
 - **Name:** `CI`
 - **Triggers:** `push` to `main`, `pull_request`
 - **Runner:** `ubuntu-latest`
-- **Job name:** `build-test`
+- **Jobs:** `typecheck-test`, `cargo-check`, and umbrella `build-test`
 - **Concurrency:** one active run per ref/workflow (`cancel-in-progress: true`)
 - **Checks produced:**
   - `build-test`
 
-### Steps
-- Checkout
-- Restore Turbo local cache (`.turbo`, `~/.cache/turbo`)
-- Setup pnpm and Node.js
-- Setup Rust toolchain and Rust cache
-- Restore/install Linux system dependencies with apt cache action
-- `pnpm install`
-- `pnpm typecheck`
-- `pnpm test || true` (non-gating while TODO test stubs remain)
-- Create `apps/desktop/dist` placeholder for `tauri::generate_context!()`
-- Rust compile check: `cargo check`
+### Job Breakdown
+- `typecheck-test`:
+  - Checkout
+  - Restore Turbo local cache (`.turbo`, `~/.cache/turbo`)
+  - Setup pnpm and Node.js
+  - `pnpm install`
+  - `pnpm typecheck`
+  - `pnpm test || true` (non-gating while TODO test stubs remain)
+- `cargo-check`:
+  - Checkout
+  - Setup Rust toolchain and Rust cache
+  - Restore/install Linux system dependencies with apt cache action
+  - Create `apps/desktop/dist` placeholder for `tauri::generate_context!()`
+  - Rust compile check: `cargo check`
+- `build-test` (umbrella required check):
+  - Runs after both jobs and fails if either upstream job failed.
 
 ### Cache Layers
 - pnpm dependency cache (`actions/setup-node` + `cache: pnpm`)
