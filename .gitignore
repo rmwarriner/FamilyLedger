@@ -7,10 +7,17 @@ dist/
 build/
 coverage/
 .turbo/
+.cache/
+.vite/
+playwright-report/
+test-results/
+.playwright/
 
 # Rust
 target/
 **/*.rs.bk
+apps/desktop/src-tauri/.cargo/
+apps/desktop/src-tauri/target/
 
 # Logs
 *.log
@@ -27,4 +34,7 @@ pnpm-debug.log*
 # OS / editor
 .DS_Store
 .vscode/
+!.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
 .idea/

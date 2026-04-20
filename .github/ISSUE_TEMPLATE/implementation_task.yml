@@ -1,0 +1,34 @@
+name: Implementation task
+description: Track execution-ready work item with acceptance criteria
+labels: [enhancement]
+body:
+  - type: input
+    id: milestone
+    attributes:
+      label: Milestone
+      description: Required roadmap phase milestone (Phase 1-5)
+      placeholder: Phase 1 - Core Domain Foundations
+    validations:
+      required: true
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What needs to be implemented?
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Checklist of observable done conditions.
+      placeholder: |
+        - [ ] ...
+        - [ ] ...
+    validations:
+      required: true
+  - type: textarea
+    id: risks
+    attributes:
+      label: Risks / dependencies
+      description: Upstream dependencies, migration risks, or blockers.
