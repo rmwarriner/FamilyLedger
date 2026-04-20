@@ -22,20 +22,24 @@ export const getRunningBalance = (
   const sorted = [...entries].sort((a, b) => a.date.getTime() - b.date.getTime());
   let balance = Money.from(0, 'USD');
 
-  return sorted.map((entry) => {
+  return sorted.flatMap((entry) => {
     const accountPostings = entry.postings.filter((posting) => posting.accountId === accountId);
-    if (accountPostings.length > 0) {
-      const firstPosting = accountPostings[0];
-      if (!firstPosting) {
-        return { date: entry.date, balance };
-      }
-      const currency = firstPosting.amount.currency;
-      if (balance.currency !== currency) {
-        balance = Money.from(balance.amount, currency);
-      }
-      balance = accountPostings.reduce((sum, posting) => sum.plus(posting.amount), balance);
+    if (accountPostings.length === 0) {
+      return [];
     }
-    return { date: entry.date, balance };
+
+    const firstPosting = accountPostings[0];
+    if (!firstPosting) {
+      return [];
+    }
+
+    const currency = firstPosting.amount.currency;
+    if (balance.currency !== currency) {
+      balance = Money.from(balance.amount, currency);
+    }
+    balance = accountPostings.reduce((sum, posting) => sum.plus(posting.amount), balance);
+
+    return [{ date: entry.date, balance }];
   });
 };
 
