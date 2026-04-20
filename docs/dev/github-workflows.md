@@ -9,9 +9,10 @@ FamilyLedger uses three GitHub Actions workflows:
 
 ## CI Workflow
 - **Name:** `CI`
-- **Triggers:** `push` (all branches), `pull_request`
+- **Triggers:** `push` to `main`, `pull_request`
 - **Matrix:** `ubuntu-latest`, `macos-latest`, `windows-latest`
 - **Job name:** `build-test`
+- **Concurrency:** one active run per ref/workflow (`cancel-in-progress: true`)
 - **Checks produced:**
   - `build-test (ubuntu-latest)`
   - `build-test (macos-latest)`
