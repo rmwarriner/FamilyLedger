@@ -12,10 +12,12 @@
 - On phase completion: close the milestone and open/refine execution issues for the next phase.
 - Keep this file stable; edit only for sequencing, scope, or acceptance-criteria changes.
 
-## Current Status (April 20, 2026)
+## Current Status (April 21, 2026)
 - Scaffold complete: monorepo, app/package structure, architecture docs, CI, branch protection, and PR workflow.
 - CI optimization complete: parallel checks with required umbrella gate.
-- Remaining work: implement domain logic and user-facing workflows currently marked `TODO(impl):`.
+- Phase 4 complete: sync adapter lifecycle, audit integrity verification/query, vault and pairing security flows, and security-model documentation merged via PR #39.
+- Phase 5 implementation complete in branch delivery: transaction split UX + keyboard workflow, recoverable import wizard, audit pagination/filter UX, and running critical Playwright scenarios.
+- Remaining work: release-signing/publish hardening and backlog items outside the closed roadmap phases.
 
 ## Phase 1 — Core Domain Foundations
 ### Goals
@@ -58,6 +60,8 @@
 ## Phase 4 — Sync, Audit, and Security Hardening
 ### Goals
 - Implement trust model behaviors and integrity guarantees.
+### Status
+- Completed April 21, 2026 (merged PR #39).
 ### Scope
 - Rust sync adapters: filesystem production implementation, Dropbox/WebDAV progressive support.
 - Audit log append-only enforcement and hash-chain verification endpoint.
@@ -71,6 +75,8 @@
 ## Phase 5 — UX Completion and E2E Reliability
 ### Goals
 - Complete primary user journeys and stabilize release quality.
+### Status
+- Completed April 21, 2026 (implementation branch: `feat/phase5-ux-e2e-complete`).
 ### Scope
 - Transaction form and split editor full behavior (keyboard-first flow, live balancing, validation UX).
 - Import wizard full-step recoverable flow.

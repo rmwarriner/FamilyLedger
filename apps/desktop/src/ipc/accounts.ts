@@ -1,4 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
+import { isTauriRuntime, mockBackend } from './mockRuntime';
 export interface AccountDto {
   id: string;
   name: string;
@@ -8,4 +9,4 @@ export interface AccountDto {
 }
 
 export const listAccounts = async (): Promise<AccountDto[]> =>
-  invoke<AccountDto[]>('list_accounts');
+  isTauriRuntime() ? invoke<AccountDto[]>('list_accounts') : mockBackend.listAccounts();

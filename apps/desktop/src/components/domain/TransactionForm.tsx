@@ -3,6 +3,7 @@ import { useAccounts } from '../../hooks/useAccounts';
 import { useTransactions } from '../../hooks/useTransactions';
 import { Button } from '../primitives/Button';
 import { Input } from '../primitives/Input';
+import { SplitEditor, type SplitLine } from './SplitEditor';
 
 interface FormState {
   date: string;
@@ -26,6 +27,13 @@ const initialFormState = (): FormState => ({
   memo: ''
 });
 
+const newSplitLine = (): SplitLine => ({
+  id: `split-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+  debitAccountId: '',
+  amount: '',
+  memo: ''
+});
+
 const isPositiveAmount = (value: string): boolean => {
   const parsed = Number(value.trim());
   return Number.isFinite(parsed) && parsed > 0;
@@ -35,6 +43,9 @@ export const TransactionForm = (): JSX.Element => {
   const [state, setState] = useState<FormState>(initialFormState());
   const [accountQuery, setAccountQuery] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [useSplitMode, setUseSplitMode] = useState(false);
+  const [splitSourceAccountId, setSplitSourceAccountId] = useState('');
+  const [splitLines, setSplitLines] = useState<SplitLine[]>([newSplitLine()]);
 
   const { data: accounts = [], isLoading: isAccountsLoading } = useAccounts();
   const { data: transactions = [], create } = useTransactions();
@@ -71,7 +82,21 @@ export const TransactionForm = (): JSX.Element => {
     setState(initialFormState());
     setErrorMessage(null);
     setAccountQuery('');
+    setUseSplitMode(false);
+    setSplitSourceAccountId('');
+    setSplitLines([newSplitLine()]);
   };
+
+  const totalAmount = Number(state.amount) || 0;
+  const splitTotal = splitLines.reduce((sum, line) => {
+    const parsed = Number(line.amount);
+    return sum + (Number.isFinite(parsed) ? parsed : 0);
+  }, 0);
+  const splitImbalance = Number((totalAmount - splitTotal).toFixed(2));
+  const splitImbalanceLabel =
+    splitImbalance === 0
+      ? 'Balanced: split amounts match transaction amount.'
+      : `Remaining to balance: ${splitImbalance.toFixed(2)}`;
 
   const validate = (): string | null => {
     if (!state.description.trim()) {
@@ -79,6 +104,21 @@ export const TransactionForm = (): JSX.Element => {
     }
     if (!isPositiveAmount(state.amount)) {
       return 'Amount must be a positive number.';
+    }
+    if (useSplitMode) {
+      if (!splitSourceAccountId) {
+        return 'Select a split source account.';
+      }
+      if (splitLines.some((line) => !line.debitAccountId || !isPositiveAmount(line.amount))) {
+        return 'Each split line needs a debit account and positive amount.';
+      }
+      if (splitLines.some((line) => line.debitAccountId === splitSourceAccountId)) {
+        return 'Split debit account cannot match source account.';
+      }
+      if (splitImbalance !== 0) {
+        return `Split amounts are imbalanced by ${splitImbalance.toFixed(2)}.`;
+      }
+      return null;
     }
     if (!state.debitAccountId) {
       return 'Select a debit account.';
@@ -101,15 +141,29 @@ export const TransactionForm = (): JSX.Element => {
     }
 
     try {
-      await create.mutateAsync({
-        date: state.date,
-        description: state.description,
-        payee: state.payee.trim() || null,
-        amount: state.amount,
-        debitAccountId: state.debitAccountId,
-        creditAccountId: state.creditAccountId,
-        memo: state.memo.trim() || null
-      });
+      if (useSplitMode) {
+        for (const line of splitLines) {
+          await create.mutateAsync({
+            date: state.date,
+            description: state.description,
+            payee: state.payee.trim() || null,
+            amount: line.amount,
+            debitAccountId: line.debitAccountId,
+            creditAccountId: splitSourceAccountId,
+            memo: line.memo.trim() || state.memo.trim() || null
+          });
+        }
+      } else {
+        await create.mutateAsync({
+          date: state.date,
+          description: state.description,
+          payee: state.payee.trim() || null,
+          amount: state.amount,
+          debitAccountId: state.debitAccountId,
+          creditAccountId: state.creditAccountId,
+          memo: state.memo.trim() || null
+        });
+      }
       resetForm();
     } catch (error) {
       setErrorMessage(String(error));
@@ -130,7 +184,7 @@ export const TransactionForm = (): JSX.Element => {
   };
 
   return (
-    <section>
+    <section data-testid="transaction-form">
       <h3>Transaction Entry</h3>
       <p>Save with Cmd/Ctrl+Enter. Reset with Escape.</p>
       <form onSubmit={(event) => void submit(event)} onKeyDown={handleKeyDown}>
@@ -173,11 +227,22 @@ export const TransactionForm = (): JSX.Element => {
           <label>
             Amount
             <Input
+              data-testid="transaction-amount"
               inputMode="decimal"
               value={state.amount}
               onChange={(event) => setState((previous) => ({ ...previous, amount: event.target.value }))}
               placeholder="0.00"
             />
+          </label>
+
+          <label>
+            <input
+              data-testid="split-mode-toggle"
+              type="checkbox"
+              checked={useSplitMode}
+              onChange={(event) => setUseSplitMode(event.target.checked)}
+            />
+            Use split editor
           </label>
 
           <label>
@@ -189,41 +254,66 @@ export const TransactionForm = (): JSX.Element => {
             />
           </label>
 
-          <label>
-            Debit Account
-            <select
-              value={state.debitAccountId}
-              onChange={(event) =>
-                setState((previous) => ({ ...previous, debitAccountId: event.target.value }))
-              }
-              disabled={isAccountsLoading}
-            >
-              <option value="">Select debit account</option>
-              {filteredAccounts.map((account) => (
-                <option key={account.id} value={account.id}>
-                  {account.fullPath}
-                </option>
-              ))}
-            </select>
-          </label>
+          {!useSplitMode ? (
+            <>
+              <label>
+                Debit Account
+                <select
+                  value={state.debitAccountId}
+                  onChange={(event) =>
+                    setState((previous) => ({ ...previous, debitAccountId: event.target.value }))
+                  }
+                  disabled={isAccountsLoading}
+                  data-testid="debit-account"
+                >
+                  <option value="">Select debit account</option>
+                  {filteredAccounts.map((account) => (
+                    <option key={account.id} value={account.id}>
+                      {account.fullPath}
+                    </option>
+                  ))}
+                </select>
+              </label>
 
-          <label>
-            Credit Account
-            <select
-              value={state.creditAccountId}
-              onChange={(event) =>
-                setState((previous) => ({ ...previous, creditAccountId: event.target.value }))
+              <label>
+                Credit Account
+                <select
+                  value={state.creditAccountId}
+                  onChange={(event) =>
+                    setState((previous) => ({ ...previous, creditAccountId: event.target.value }))
+                  }
+                  disabled={isAccountsLoading}
+                  data-testid="credit-account"
+                >
+                  <option value="">Select credit account</option>
+                  {filteredAccounts.map((account) => (
+                    <option key={account.id} value={account.id}>
+                      {account.fullPath}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </>
+          ) : (
+            <SplitEditor
+              lines={splitLines}
+              accounts={filteredAccounts}
+              sourceAccountId={splitSourceAccountId}
+              onSourceAccountChange={(value) => setSplitSourceAccountId(value)}
+              onLineChange={(lineId, patch) =>
+                setSplitLines((previous) =>
+                  previous.map((line) => (line.id === lineId ? { ...line, ...patch } : line))
+                )
               }
-              disabled={isAccountsLoading}
-            >
-              <option value="">Select credit account</option>
-              {filteredAccounts.map((account) => (
-                <option key={account.id} value={account.id}>
-                  {account.fullPath}
-                </option>
-              ))}
-            </select>
-          </label>
+              onAddLine={() => setSplitLines((previous) => [...previous, newSplitLine()])}
+              onRemoveLine={(lineId) =>
+                setSplitLines((previous) =>
+                  previous.length > 1 ? previous.filter((line) => line.id !== lineId) : previous
+                )
+              }
+              imbalanceLabel={splitImbalanceLabel}
+            />
+          )}
 
           <label>
             Memo
@@ -236,7 +326,7 @@ export const TransactionForm = (): JSX.Element => {
         </div>
 
         {errorMessage ? (
-          <p role="alert" style={{ color: 'var(--color-danger, #b00020)' }}>
+          <p role="alert" data-testid="transaction-error" style={{ color: 'var(--color-danger, #b00020)' }}>
             {errorMessage}
           </p>
         ) : null}
@@ -253,4 +343,3 @@ export const TransactionForm = (): JSX.Element => {
     </section>
   );
 };
-
