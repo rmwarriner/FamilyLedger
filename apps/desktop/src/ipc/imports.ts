@@ -1,5 +1,13 @@
 import { invoke } from '@tauri-apps/api/core';
-import type { ImportResult } from '@familyledger/importers';
+import { isTauriRuntime, mockBackend } from './mockRuntime';
+
+export interface ImportResult {
+  accountsImported: number;
+  transactionsImported: number;
+  errors: string[];
+}
 
 export const importData = async (payload: string): Promise<ImportResult> =>
-  invoke<ImportResult>('import_data', { payload });
+  isTauriRuntime()
+    ? invoke<ImportResult>('import_data', { payload })
+    : Promise.resolve(mockBackend.importData(payload));

@@ -1,4 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
+import { isTauriRuntime, mockBackend } from './mockRuntime';
 
 export interface TransactionDto {
   id: string;
@@ -25,9 +26,22 @@ export interface CreateTransactionRequest {
 }
 
 export const listTransactions = async (): Promise<TransactionDto[]> =>
-  invoke<TransactionDto[]>('list_transactions');
+  isTauriRuntime()
+    ? invoke<TransactionDto[]>('list_transactions')
+    : mockBackend.listTransactions();
 
 export const createTransaction = async (
   request: CreateTransactionRequest
 ): Promise<TransactionDto> =>
-  invoke<TransactionDto>('create_transaction', { request });
+  isTauriRuntime()
+    ? invoke<TransactionDto>('create_transaction', { request })
+    : mockBackend.createTransaction({
+        date: request.date,
+        description: request.description,
+        payee: request.payee,
+        amount: request.amount,
+        currency: 'USD',
+        debitAccountId: request.debitAccountId,
+        creditAccountId: request.creditAccountId,
+        memo: request.memo
+      });
